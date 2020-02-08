@@ -6,6 +6,7 @@ Created on Sun Feb  2 01:27:54 2020
 """
 
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -29,13 +30,14 @@ class KNN(_AbstractModelClass):
         else:
             pipe = Pipeline([("model", KNeighborsClassifier(weights="distance"))])
         params = {"model__n_neighbors": range(1, 50, 4)}
-        self.model = GridSearchCV(pipe, params, return_train_score=True)
+        cv = StratifiedKFold(n_splits=5, shuffle=True)
+        self.model = GridSearchCV(pipe, params, return_train_score=True, cv=cv)
 
 
 for dat in data_list:
     knn = KNN()
-    knn.construct_model(scale=False)
-    res_df = knn.run_experiment(dat)
+    # knn.construct_model(scale=False)
+    res_df = knn.run_experiment(dat, n_iter=3, scale=False)
 
     mean_df = res_df.groupby("param_model__n_neighbors").mean()
     std_df = res_df.groupby("param_model__n_neighbors").std()
@@ -45,6 +47,7 @@ for dat in data_list:
         ylabel="accuracy",
         title=f"KNN accuracy on {dat.data_name} data",
         fname=f"{dat.data_name}_knn_acc.png",
+        ylim=(1 / dat.n_class, None),
     )
 
     generate_plot(
@@ -68,4 +71,5 @@ for dat in data_list:
         ylabel="accuracy",
         title=f"KNN accuracy with standard scaling on {dat.data_name} data",
         fname=f"{dat.data_name}_knn_acc_scale.png",
+        ylim=(1 / dat.n_class, None),
     )
