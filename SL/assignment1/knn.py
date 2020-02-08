@@ -43,7 +43,7 @@ for dat in data_list:
     generate_plot(
         mean_df=mean_df[["mean_train_score", "mean_test_score"]],
         ylabel="accuracy",
-        title=f"KNN performance on {dat.data_name} data",
+        title=f"KNN accuracy on {dat.data_name} data",
         fname=f"{dat.data_name}_knn_acc.png",
     )
 
@@ -58,7 +58,7 @@ for dat in data_list:
     # with standard scaling
     knn_scale = KNN()
     knn_scale.construct_model(scale=True)
-    res_df = knn_scale.run_experiment(dat)
+    res_df = knn_scale.run_experiment(dat, n_iter=1)
 
     mean_df = res_df.groupby("param_model__n_neighbors").mean()
     std_df = res_df.groupby("param_model__n_neighbors").std()
@@ -66,6 +66,6 @@ for dat in data_list:
     generate_plot(
         mean_df[["mean_train_score", "mean_test_score"]],
         ylabel="accuracy",
-        title=f"KNN model with standard scaling on {dat.data_name} data",
+        title=f"KNN accuracy with standard scaling on {dat.data_name} data",
         fname=f"{dat.data_name}_knn_acc_scale.png",
     )
