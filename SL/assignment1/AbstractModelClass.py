@@ -20,6 +20,7 @@ class _AbstractModelClass:
     def run_experiment(self, data, n_iter=20):
         df_list = []
         for n in range(n_iter):
+            print("iter = " + n + "\n")
             self.model.fit(data.X, data.y)
             df_list.append(pd.DataFrame(self.model.cv_results_))
         res_df = pd.concat(df_list)
