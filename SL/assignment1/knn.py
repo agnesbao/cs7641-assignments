@@ -43,15 +43,15 @@ for dat in data_list:
     generate_plot(
         mean_df=mean_df[["mean_train_score", "mean_test_score"]],
         ylabel="accuracy",
-        title="KNN performance on " + dat.data_name + "data",
-        fname=dat.data_name + "_knn_acc.png",
+        title=f"KNN performance on {dat.data_name} data",
+        fname=f"{dat.data_name}_knn_acc.png",
     )
 
     generate_plot(
         mean_df[["mean_fit_time", "mean_score_time"]],
         ylabel="runtime",
-        title="KNN runtime on " + dat.data_name + "data",
-        fname=dat.data_name + "_knn_runtime.png",
+        title=f"KNN runtime on {dat.data_name} data",
+        fname=f"{dat.data_name}_knn_runtime.png",
         std_df=std_df[["mean_fit_time", "mean_score_time"]],
     )
 
@@ -66,6 +66,6 @@ for dat in data_list:
     generate_plot(
         mean_df[["mean_train_score", "mean_test_score"]],
         ylabel="accuracy",
-        title="KNN model performance with standard scaling",
-        fname=dat.data_name + "_knn_acc_scale.png",
+        title=f"KNN model with standard scaling on {dat.data_name} data",
+        fname=f"{dat.data_name}_knn_acc_scale.png",
     )
