@@ -28,8 +28,8 @@ class KNN(_AbstractModelClass):
             )
         else:
             pipe = Pipeline([("model", KNeighborsClassifier(weights="distance"))])
-        params = {"model__n_neighbors": range(1, 50, 3)}
-        self.model = GridSearchCV(pipe, params, return_train_score=True, cv=3)
+        params = {"model__n_neighbors": range(1, 50, 4)}
+        self.model = GridSearchCV(pipe, params, return_train_score=True)
 
 
 for dat in data_list:
@@ -43,14 +43,14 @@ for dat in data_list:
     generate_plot(
         mean_df=mean_df[["mean_train_score", "mean_test_score"]],
         ylabel="accuracy",
-        title="KNN model performance",
+        title="KNN performance on " + dat.data_name + "data",
         fname=dat.data_name + "_knn_acc.png",
     )
 
     generate_plot(
         mean_df[["mean_fit_time", "mean_score_time"]],
-        ylabel="accuracy",
-        title="KNN model runtime",
+        ylabel="runtime",
+        title="KNN runtime on " + dat.data_name + "data",
         fname=dat.data_name + "_knn_runtime.png",
         std_df=std_df[["mean_fit_time", "mean_score_time"]],
     )
