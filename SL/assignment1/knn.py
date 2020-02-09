@@ -1,23 +1,22 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Feb  2 01:27:54 2020
-
 @author: Xiaojun
 """
 
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from AbstractModelClass import _AbstractModelClass
 from AbstractModelClass import generate_plot
+from data import DATA_LIST
 
 
 class KNN(_AbstractModelClass):
     def __init__(self):
         self.algo_name = "knn"
+        super().__init__()
 
     def construct_model(self, scale: bool):
         if scale:
@@ -30,14 +29,15 @@ class KNN(_AbstractModelClass):
         else:
             pipe = Pipeline([("model", KNeighborsClassifier(weights="distance"))])
         params = {"model__n_neighbors": range(1, 50, 4)}
-        cv = StratifiedKFold(n_splits=5, shuffle=True)
-        self.model = GridSearchCV(pipe, params, return_train_score=True, cv=cv)
+        self.model = GridSearchCV(
+            pipe, params, return_train_score=True, cv=self.cv, scoring=self.scoring
+        )
 
 
-for dat in data_list:
+for dat in DATA_LIST:
     knn = KNN()
-    # knn.construct_model(scale=False)
-    res_df = knn.run_experiment(dat, n_iter=3, scale=False)
+    knn.construct_model(scale=False)
+    res_df = knn.run_experiment(dat)
 
     mean_df = res_df.groupby("param_model__n_neighbors").mean()
     std_df = res_df.groupby("param_model__n_neighbors").std()
@@ -45,23 +45,23 @@ for dat in data_list:
     generate_plot(
         mean_df=mean_df[["mean_train_score", "mean_test_score"]],
         ylabel="accuracy",
-        title=f"KNN accuracy on {dat.data_name} data",
         fname=f"{dat.data_name}_knn_acc.png",
-        ylim=(1 / dat.n_class, None),
+        std_df=std_df[["mean_train_score", "mean_test_score"]],
+        title=f"KNN accuracy on {dat.data_name} data",
     )
 
     generate_plot(
         mean_df[["mean_fit_time", "mean_score_time"]],
         ylabel="runtime",
-        title=f"KNN runtime on {dat.data_name} data",
         fname=f"{dat.data_name}_knn_runtime.png",
         std_df=std_df[["mean_fit_time", "mean_score_time"]],
+        title=f"KNN runtime on {dat.data_name} data",
     )
 
     # with standard scaling
     knn_scale = KNN()
     knn_scale.construct_model(scale=True)
-    res_df = knn_scale.run_experiment(dat, n_iter=1)
+    res_df = knn_scale.run_experiment(dat)
 
     mean_df = res_df.groupby("param_model__n_neighbors").mean()
     std_df = res_df.groupby("param_model__n_neighbors").std()
@@ -69,7 +69,7 @@ for dat in data_list:
     generate_plot(
         mean_df[["mean_train_score", "mean_test_score"]],
         ylabel="accuracy",
-        title=f"KNN accuracy with standard scaling on {dat.data_name} data",
         fname=f"{dat.data_name}_knn_acc_scale.png",
-        ylim=(1 / dat.n_class, None),
+        std_df=std_df[["mean_train_score", "mean_test_score"]],
+        title=f"KNN accuracy with standard scaling on {dat.data_name} data",
     )

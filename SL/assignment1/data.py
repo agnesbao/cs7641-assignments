@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Feb  2 00:03:56 2020
-
 @author: Xiaojun
+
+Prepare data
 """
 
 import os
@@ -35,6 +35,8 @@ class Data:
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             self.X, self.y, test_size=0.2
         )
+        self.n_class = self.y.nunique()
+        self.n_features = self.X.shape[1]
 
     def plot_X(self):
         self.X.plot.box(
@@ -44,16 +46,16 @@ class Data:
         plt.clf()
 
     def plot_y(self):
-        self.y.value_counts().plot.pie(figsize=(7, 7), title="Distribution of classes")
+        self.y.value_counts().plot.pie(figsize=(5, 5), title="Distribution of classes")
         plt.savefig(os.path.join("output", self.data_name + "_y.png"))
         plt.clf()
 
 
-data_list = []
+DATA_LIST = []
 for dname in ["credit", "wine"]:
     dat = Data(dname)
     dat.load_data()
     dat.preprocess_data()
     dat.plot_X()
     dat.plot_y()
-    data_list.append(dat)
+    DATA_LIST.append(dat)

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Feb  6 23:40:45 2020
-
 @author: Xiaojun
 """
 
+import os
+import pandas as pd
 from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
@@ -12,58 +12,51 @@ from sklearn.preprocessing import StandardScaler
 
 from AbstractModelClass import _AbstractModelClass
 from AbstractModelClass import generate_plot
+from data import DATA_LIST
 
 
 class SVM(_AbstractModelClass):
     def __init__(self):
         self.algo_name = "svm"
+        super().__init__()
 
-    def construct_model(self, scale: bool):
-        if scale:
-            pipe = Pipeline([("scaler", StandardScaler()), ("model", SVC())])
-        else:
-            pipe = Pipeline([("model", SVC())])
-        params = {
-            "model__kernel": ["linear", "poly", "rbf"],
-            "model__degree": [2,3],
-        }
-        self.model = GridSearchCV(pipe, params, return_train_score=True, n_jobs=-1)
+    def construct_model(self, params):
+        pipe = Pipeline([("scaler", StandardScaler()), ("model", SVC())])
+        self.model = GridSearchCV(
+            pipe, params, return_train_score=True, cv=self.cv, scoring=self.scoring
+        )
 
 
-for dat in data_list[0]:
+for dat in DATA_LIST:
     svm = SVM()
-    svm.construct_model(scale=False)
-    res_df = svm.run_experiment(dat, n_iter=1)
 
-    mean_df = res_df.groupby("param_model__kernel").mean()
-    std_df = res_df.groupby("param_model__kernel").std()
+    params = {"model__kernel": ["linear", "rbf"]}
+    svm.construct_model(params)
+    res_df1 = svm.run_experiment(dat)
+
+    params = {"model__kernel": ["poly"], "model__degree": range(2, 7)}
+    svm.construct_model(params)
+    res_df2 = svm.run_experiment(dat)
+
+    res_df = pd.concat([res_df1, res_df2])
+    res_df.to_csv(os.path.join("data", f"{dat.data_name}_{svm.algo_name}.csv"))
+    res_df["param_model__degree"] = res_df["param_model__degree"].astype(str)
+
+    mean_df = res_df.groupby(["param_model__kernel", "param_model__degree"]).mean()
+    std_df = res_df.groupby(["param_model__kernel", "param_model__degree"]).std()
 
     generate_plot(
         mean_df[["mean_train_score", "mean_test_score"]],
         ylabel="accuracy",
-        title="SVM model performance",
-        fname=dat.data_name + "_svm_acc.png",
+        fname=f"{dat.data_name}_svm_acc.png",
+        std_df=std_df[["mean_train_score", "mean_test_score"]],
+        title=f"SVM accuracy on {dat.data_name} data",
     )
 
     generate_plot(
         mean_df[["mean_fit_time", "mean_score_time"]],
-        ylabel="accuracy",
-        title="SVM model runtime",
-        fname=dat.data_name + "_svm_runtime.png",
+        ylabel="runtime",
+        fname=f"{dat.data_name}_svm_runtime.png",
         std_df=std_df[["mean_fit_time", "mean_score_time"]],
-    )
-
-    # with standard scaling
-    svm_scale = SVM()
-    svm_scale.construct_model(scale=True)
-    svm_scale.run_experiment(dat)
-
-    mean_df = res_df.groupby("param_model__n_neighbors").mean()
-    std_df = res_df.groupby("param_model__n_neighbors").std()
-
-    generate_plot(
-        mean_df[["mean_train_score", "mean_test_score"]],
-        ylabel="accuracy",
-        title="KNN model performance with standard scaling",
-        fname=dat.data_name + "_svm_acc_scale.png",
+        title=f"SVM runtime on {dat.data_name} data",
     )
