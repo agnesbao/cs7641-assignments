@@ -11,6 +11,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV
+from sklearn.neural_network import MLPClassifier
 from best_models import BEST_MODELS
 from data import DATA_LIST
 
@@ -113,6 +114,11 @@ for dat in DATA_LIST:
         final_score["test_score"].append(clf.score(dat.X_test, dat.y_test))
 
     final_score_df = pd.DataFrame(final_score).sort_values(by="test_score")
-    final_score_df.plot(x="model", y=["training_score", "test_score"], style=".-")
+    final_score_df.plot(
+        x="model",
+        y=["training_score", "test_score"],
+        style=".-",
+        title=f"Final accuracy on test data vs model on {dat.data_name} data",
+    )
     plt.savefig(os.path.join("output", f"{dat.data_name}_final_scores.png"))
     plt.clf()

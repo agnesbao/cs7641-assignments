@@ -33,7 +33,7 @@ BEST_MODELS = {
     },
     "boosting": {
         "credit": AdaBoostClassifier(
-            base_estimator=DecisionTreeClassifier(ccp_alpha=0.006), n_estimators=90
+            base_estimator=DecisionTreeClassifier(ccp_alpha=0.006), n_estimators=120
         ),
         "wine": AdaBoostClassifier(
             base_estimator=DecisionTreeClassifier(ccp_alpha=0.0002), n_estimators=500

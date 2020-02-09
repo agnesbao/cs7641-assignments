@@ -33,7 +33,7 @@ class Data:
             X_cat = pd.get_dummies(X_cat, drop_first=True)
             self.X = self.X.select_dtypes("number").join(X_cat)
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
-            self.X, self.y, test_size=0.2
+            self.X, self.y, test_size=0.2, random_state=0
         )
         self.n_class = self.y.nunique()
         self.n_features = self.X.shape[1]
