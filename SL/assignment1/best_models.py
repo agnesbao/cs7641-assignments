@@ -7,7 +7,7 @@ from sklearn.ensemble import AdaBoostClassifier
 
 BEST_MODELS = {
     "knn": {
-        "credit": KNeighborsClassifier(n_neighbors=25, weights="distance"),
+        "credit": KNeighborsClassifier(n_neighbors=13, weights="distance"),
         "wine": KNeighborsClassifier(n_neighbors=33, weights="distance"),
     },
     "svm": {"credit": SVC(kernel="rbf"), "wine": SVC(kernel="rbf")},

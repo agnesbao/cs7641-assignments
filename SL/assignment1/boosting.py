@@ -56,3 +56,11 @@ for dat in DATA_LIST:
         std_df=std_df[["mean_train_score", "mean_test_score"]],
         title=f"Decision tree with Boosting accuracy on {dat.data_name} data",
     )
+    
+    generate_plot(
+        mean_df[["mean_fit_time", "mean_score_time"]],
+        ylabel="runtime",
+        fname=f"{dat.data_name}_boosting_runtime.png",
+        std_df=std_df[["mean_fit_time", "mean_score_time"]],
+        title=f"Decision tree with Boosting runtime on {dat.data_name} data",
+    )

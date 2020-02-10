@@ -27,7 +27,8 @@ class DT(_AbstractModelClass):
         clf = DecisionTreeClassifier(random_state=0)
         path = clf.cost_complexity_pruning_path(data.X_train, data.y_train)
         path_df = pd.DataFrame(path)
-        path_df[:-1].plot(x="ccp_alphas", y="impurities", style=".-", legend=False)
+        path_df[:-1].plot(x="ccp_alphas", y="impurities", style=".-", legend=False, 
+               title = f"Impurities vs ccp_alphas on {data.data_name} data")
         plt.ylabel("total impurity of leaves")
         plt.savefig(os.path.join("output", f"{data.data_name}_ccp_alphas.png"))
         plt.clf()
@@ -54,7 +55,7 @@ class DT(_AbstractModelClass):
             subplots=True,
             style=".-",
             figsize=(10, 5),
-            title="Decision tree complexity vs ccp_alpha",
+            title=f"Decision tree complexity vs ccp_alpha on {data.data_name} data",
         )
         plt.savefig(os.path.join("output", f"{data.data_name}_ccp_alphas_tree.png"))
         plt.clf()
