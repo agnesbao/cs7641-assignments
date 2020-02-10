@@ -1,11 +1,10 @@
 # Reports #
 ###########
 *.docx
-
 *.pdf
-
 
 *.DS_Store
 .idea/
 *__pycache__/
+*Thumbs.db
 
