@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 from time import process_time
 
-fitness = mlrose.OneMax()
+fitness = mlrose.FlipFlop()
 problem = mlrose.DiscreteOpt(100, fitness)
 
 RANDOM_SEED = 42
@@ -32,18 +32,18 @@ df.columns = decays
 df.plot()
 plt.xlabel("Iteration")
 plt.ylabel("Fitness")
-plt.title("OneMax: Fitness curve vs decay rate in SA")
-plt.savefig("onemax_sa_decay.png")
+plt.title("FlipFlop: Fitness curve vs decay rate in SA")
+plt.savefig("flipflop_sa_decay.png")
 plt.close()
 
 #%% tuning for GA
 curve_list = []
-pop_sizes = [10, 20, 30, 40, 100, 200]
+pop_sizes = [25, 50, 100, 200]
 for p in pop_sizes:
     _, _, curve = mlrose.genetic_alg(
         problem,
         max_attempts=MAX_ATTEMPTS,
-        max_iters=50,
+        max_iters=100,
         pop_size=p,
         elite_dreg_ratio=1,
         curve=True,
@@ -56,32 +56,32 @@ df.columns = pop_sizes
 df.plot()
 plt.xlabel("Iteration")
 plt.ylabel("Fitness")
-plt.title("OneMax: Fitness curve vs population size in GA")
-plt.savefig("onemax_ga_pop.png")
+plt.title("FlipFlop: Fitness curve vs population size in GA")
+plt.savefig("flipflop_ga_pop.png")
 plt.close()
 
 #%% tuning for MIMIC
 
 curve_list = []
-pop_sizes = [50, 100, 200]
-for p in pop_sizes:
+nth_pct = [0.05, 0.1, 0.2, 0.4]
+for p in nth_pct:
     _, _, curve = mlrose.mimic(
         problem,
-        max_attempts=MAX_ATTEMPTS,
-        max_iters=50,
-        pop_size=p,
+        #        max_attempts=MAX_ATTEMPTS,
+        #        max_iters=50,
+        keep_pct=p,
         curve=True,
         random_state=RANDOM_SEED,
     )
     curve_list.append(curve)
 
 df = pd.DataFrame(curve_list).transpose()
-df.columns = pop_sizes
+df.columns = nth_pct
 df.plot()
 plt.xlabel("Iteration")
 plt.ylabel("Fitness")
-plt.title("OneMax: Fitness curve vs population size in MIMIC")
-plt.savefig("onemax_mimic_pop.png")
+plt.title("FlipFlop: Fitness curve vs nth percentile in MIMIC")
+plt.savefig("flipflop_mimic_nth.png")
 plt.close()
 
 #%% Putting together
@@ -123,7 +123,6 @@ _, _, curve = mlrose.genetic_alg(
     problem,
     max_attempts=MAX_ATTEMPTS,
     max_iters=50,
-    pop_size=100,
     elite_dreg_ratio=1,
     curve=True,
     random_state=RANDOM_SEED,

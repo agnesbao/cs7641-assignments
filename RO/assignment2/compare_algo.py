@@ -6,18 +6,37 @@ Created on Fri Feb 21 22:16:27 2020
 """
 
 import os
-import mlrose
-import pandas as pd
+import mlrose_hiive as mlrose
+import numpy as np
 import matplotlib.pyplot as plt
 
+fitness = mlrose.FourPeaks()
+problem = problem = mlrose.DiscreteOpt(100, fitness)
+res = SimpleProblem(problem)
+res.run_fitness_curve()
+
+#%%
+def int2bitlist(i, N):
+    bitstring = np.binary_repr(i, width=8)
+    return [int(s) for s in bitstring]
+
+
+N = 7
+res = []
+for i in range(2 ** (N + 1)):
+    res.append(fitness.evaluate(int2bitlist(i, N)))
+plt.plot(res)
+
+#%%
 
 ALGO_DICT = {
     "RHC": mlrose.random_hill_climb,
     "SA": mlrose.simulated_annealing,
     "GA": mlrose.genetic_alg,
-    "MIMIC": mlrose.mimic,
+    #    "MIMIC": mlrose.mimic,
 }
-MAX_ITER = 100
+MAX_ATTEMPTS = 100
+MAX_ITER = 500
 
 
 class SimpleProblem:
@@ -31,7 +50,11 @@ class SimpleProblem:
         res_list = []
         for key, algo in ALGO_DICT.items():
             _, _, curve = algo(
-                self.problem, max_iters=MAX_ITER, curve=True, random_state=42
+                self.problem,
+                max_attempts=MAX_ATTEMPTS,
+                max_iters=MAX_ITER,
+                curve=True,
+                random_state=42,
             )
             res_list.append(pd.DataFrame(data=curve, columns=[key]))
         res_df = pd.concat(res_list, axis=1)
