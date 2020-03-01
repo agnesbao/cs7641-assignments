@@ -9,7 +9,7 @@ from time import process_time
 print("Running FlipFlop...")
 
 fitness = mlrose.FlipFlop()
-problem = mlrose.FlipFlopOpt(200, fitness)
+problem = mlrose.FlipFlopOpt(100, fitness)
 
 RANDOM_SEED = 42
 MAX_ATTEMPTS = 100
@@ -23,7 +23,7 @@ for d in decays:
         problem,
         schedule=schedule,
         max_attempts=MAX_ATTEMPTS,
-        max_iters=500,
+        max_iters=3000,
         curve=True,
         random_state=RANDOM_SEED,
     )
@@ -42,7 +42,7 @@ print(df.max())
 
 #%% tuning for GA
 curve_list = []
-pop_sizes = [25, 50, 100, 200]
+pop_sizes = [50, 100, 200, 400]
 for p in pop_sizes:
     _, _, curve = mlrose.genetic_alg(
         problem,
@@ -68,32 +68,31 @@ print(df.max())
 
 #%% tuning for MIMIC
 
-curve_list = []
-nth_pct = [0.1, 0.2, 0.4]
-for p in nth_pct:
-    _, _, curve = mlrose.mimic(
-        problem,
-        max_attempts=MAX_ATTEMPTS,
-        max_iters=50,
-        keep_pct=p,
-        curve=True,
-        random_state=RANDOM_SEED,
-    )
-    curve_list.append(curve)
-
-df = pd.DataFrame(curve_list).transpose()
-df.columns = nth_pct
-df.plot()
-plt.xlabel("Iteration")
-plt.ylabel("Fitness")
-plt.title("FlipFlop: Fitness curve vs nth percentile in MIMIC")
-plt.savefig("output/flipflop_mimic_nth.png")
-plt.close()
-
-print(df.max())
+# curve_list = []
+# nth_pct = [0.1, 0.2, 0.4]
+# for p in nth_pct:
+#    _, _, curve = mlrose.mimic(
+#        problem,
+#        max_attempts=MAX_ATTEMPTS,
+#        max_iters=50,
+#        keep_pct=p,
+#        curve=True,
+#        random_state=RANDOM_SEED,
+#    )
+#    curve_list.append(curve)
+#
+# df = pd.DataFrame(curve_list).transpose()
+# df.columns = nth_pct
+# df.plot()
+# plt.xlabel("Iteration")
+# plt.ylabel("Fitness")
+# plt.title("FlipFlop: Fitness curve vs nth percentile in MIMIC")
+# plt.savefig("output/flipflop_mimic_nth.png")
+# plt.close()
+#
+# print(df.max())
 
 #%% Putting together
-RANDOM_SEED = 21
 
 curve_list = []
 time_list = []
@@ -103,7 +102,7 @@ algo_list = ["RHC", "SA", "GA", "MIMIC"]
 # RHC
 t1 = process_time()
 _, _, curve = mlrose.random_hill_climb(
-    problem, max_attempts=MAX_ATTEMPTS, curve=True, random_state=RANDOM_SEED
+    problem, max_attempts=MAX_ATTEMPTS, curve=True, random_state=RANDOM_SEED,
 )
 t2 = process_time()
 time_list.append((t2 - t1) / len(curve))
@@ -137,11 +136,7 @@ n_eval.append((np.argmax(curve) + 1) * 200)
 # MIMIC
 t1 = process_time()
 _, _, curve = mlrose.mimic(
-    problem,
-    max_attempts=MAX_ATTEMPTS,
-    keep_pct=0.4,
-    curve=True,
-    random_state=RANDOM_SEED,
+    problem, max_attempts=MAX_ATTEMPTS, curve=True, random_state=RANDOM_SEED,
 )
 t2 = process_time()
 time_list.append((t2 - t1) / len(curve))
