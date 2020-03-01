@@ -6,6 +6,8 @@ import pandas as pd
 import numpy as np
 from time import process_time
 
+print("Running OneMax...")
+
 fitness = mlrose.OneMax()
 problem = mlrose.DiscreteOpt(100, fitness)
 
@@ -33,7 +35,7 @@ df.plot()
 plt.xlabel("Iteration")
 plt.ylabel("Fitness")
 plt.title("OneMax: Fitness curve vs decay rate in SA")
-plt.savefig("onemax_sa_decay.png")
+plt.savefig("output/onemax_sa_decay.png")
 plt.close()
 
 #%% tuning for GA
@@ -57,7 +59,7 @@ df.plot()
 plt.xlabel("Iteration")
 plt.ylabel("Fitness")
 plt.title("OneMax: Fitness curve vs population size in GA")
-plt.savefig("onemax_ga_pop.png")
+plt.savefig("output/onemax_ga_pop.png")
 plt.close()
 
 #%% tuning for MIMIC
@@ -81,7 +83,7 @@ df.plot()
 plt.xlabel("Iteration")
 plt.ylabel("Fitness")
 plt.title("OneMax: Fitness curve vs population size in MIMIC")
-plt.savefig("onemax_mimic_pop.png")
+plt.savefig("output/onemax_mimic_pop.png")
 plt.close()
 
 #%% Putting together
@@ -131,7 +133,7 @@ _, _, curve = mlrose.genetic_alg(
 t2 = process_time()
 time_list.append((t2 - t1) / len(curve))
 curve_list.append(curve)
-n_eval.append((np.argmax(curve) + 1) * 200)
+n_eval.append((np.argmax(curve) + 1) * 100)
 
 # MIMIC
 t1 = process_time()
@@ -153,8 +155,10 @@ df.plot()
 plt.xlabel("Iteration")
 plt.ylabel("Fitness")
 plt.title("OneMax: Fitness curve vs algorithms")
-plt.savefig("onemax_algo.png")
+plt.savefig("output/onemax_algo.png")
 plt.close()
 
+print("time per iteration:")
 print(time_list)
+print("number of func eval reaching maxima:")
 print(n_eval)

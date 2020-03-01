@@ -6,48 +6,53 @@ import pandas as pd
 import numpy as np
 from time import process_time
 
-print("Running FlipFlop...")
+print("Running TSP...")
 
-fitness = mlrose.FlipFlop()
-problem = mlrose.FlipFlopOpt(200, fitness)
+prob_length = 50
+np.random.seed(0)
+coords_list = []
+for n in range(prob_length):
+    coords_list.append(np.random.rand(2))
+fitness = mlrose.TravellingSales(coords=coords_list)
+problem = mlrose.TSPOpt(prob_length, fitness)
 
 RANDOM_SEED = 42
-MAX_ATTEMPTS = 100
+MAX_ATTEMPTS = 200
 
 #%% tuning for SA
 curve_list = []
-decays = [0.999, 0.99]
+decays = [0.999, 0.99, 0.9]
 for d in decays:
     schedule = mlrose.GeomDecay(decay=d)
     _, _, curve = mlrose.simulated_annealing(
         problem,
         schedule=schedule,
         max_attempts=MAX_ATTEMPTS,
-        max_iters=500,
+        max_iters=3000,
         curve=True,
         random_state=RANDOM_SEED,
     )
     curve_list.append(curve)
 
-df = pd.DataFrame(curve_list).transpose()
+df = 1 / pd.DataFrame(curve_list).transpose()
 df.columns = decays
 df.plot()
 plt.xlabel("Iteration")
 plt.ylabel("Fitness")
-plt.title("FlipFlop: Fitness curve vs decay rate in SA")
-plt.savefig("output/flipflop_sa_decay.png")
+plt.title("TSP: Fitness curve vs decay rate in SA")
+plt.savefig("output/tsp_sa_decay.png")
 plt.close()
 
 print(df.max())
 
 #%% tuning for GA
 curve_list = []
-pop_sizes = [25, 50, 100, 200]
+pop_sizes = [100, 200, 300]
 for p in pop_sizes:
     _, _, curve = mlrose.genetic_alg(
         problem,
         max_attempts=MAX_ATTEMPTS,
-        max_iters=500,
+        max_iters=3000,
         pop_size=p,
         elite_dreg_ratio=1,
         curve=True,
@@ -55,39 +60,13 @@ for p in pop_sizes:
     )
     curve_list.append(curve)
 
-df = pd.DataFrame(curve_list).transpose()
+df = 1 / pd.DataFrame(curve_list).transpose()
 df.columns = pop_sizes
 df.plot()
 plt.xlabel("Iteration")
 plt.ylabel("Fitness")
-plt.title("FlipFlop: Fitness curve vs population size in GA")
-plt.savefig("output/flipflop_ga_pop.png")
-plt.close()
-
-print(df.max())
-
-#%% tuning for MIMIC
-
-curve_list = []
-nth_pct = [0.1, 0.2, 0.4]
-for p in nth_pct:
-    _, _, curve = mlrose.mimic(
-        problem,
-        max_attempts=MAX_ATTEMPTS,
-        max_iters=50,
-        keep_pct=p,
-        curve=True,
-        random_state=RANDOM_SEED,
-    )
-    curve_list.append(curve)
-
-df = pd.DataFrame(curve_list).transpose()
-df.columns = nth_pct
-df.plot()
-plt.xlabel("Iteration")
-plt.ylabel("Fitness")
-plt.title("FlipFlop: Fitness curve vs nth percentile in MIMIC")
-plt.savefig("output/flipflop_mimic_nth.png")
+plt.title("TSP: Fitness curve vs population size in GA")
+plt.savefig("output/tsp_ga_pop.png")
 plt.close()
 
 print(df.max())
@@ -108,7 +87,7 @@ _, _, curve = mlrose.random_hill_climb(
 t2 = process_time()
 time_list.append((t2 - t1) / len(curve))
 curve_list.append(curve)
-n_eval.append(np.argmax(curve) + 1)
+n_eval.append(np.argmin(curve) + 1)
 
 # SA
 t1 = process_time()
@@ -118,7 +97,7 @@ _, _, curve = mlrose.simulated_annealing(
 t2 = process_time()
 time_list.append((t2 - t1) / len(curve))
 curve_list.append(curve)
-n_eval.append(np.argmax(curve) + 1)
+n_eval.append(np.argmin(curve) + 1)
 
 # GA
 t1 = process_time()
@@ -132,29 +111,25 @@ _, _, curve = mlrose.genetic_alg(
 t2 = process_time()
 time_list.append((t2 - t1) / len(curve))
 curve_list.append(curve)
-n_eval.append((np.argmax(curve) + 1) * 200)
+n_eval.append((np.argmin(curve) + 1) * 200)
 
 # MIMIC
 t1 = process_time()
 _, _, curve = mlrose.mimic(
-    problem,
-    max_attempts=MAX_ATTEMPTS,
-    keep_pct=0.4,
-    curve=True,
-    random_state=RANDOM_SEED,
+    problem, max_attempts=MAX_ATTEMPTS, curve=True, random_state=RANDOM_SEED,
 )
 t2 = process_time()
 time_list.append((t2 - t1) / len(curve))
 curve_list.append(curve)
-n_eval.append((np.argmax(curve) + 1) * 200)
+n_eval.append((np.argmin(curve) + 1) * 200)
 
-df = pd.DataFrame(curve_list).transpose()
+df = 1 / pd.DataFrame(curve_list).transpose()
 df.columns = algo_list
 df.plot()
 plt.xlabel("Iteration")
 plt.ylabel("Fitness")
-plt.title("FlipFlop: Fitness curve vs algorithms")
-plt.savefig("output/flipflop_algo.png")
+plt.title("TSP: Fitness curve vs algorithms")
+plt.savefig("output/tsp_algo.png")
 plt.close()
 
 print("time per iteration:")
