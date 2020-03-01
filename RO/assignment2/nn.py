@@ -38,16 +38,11 @@ time_list = []
 for algo in algo_list:
     print("Running " + algo)
 
-    if algo in ["random_hill_climb", "simulated_annealing"]:
-        max_iters = 200 * 200
-    else:
-        max_iters = 200
-
     nn = mlrose.NeuralNetwork(
         hidden_nodes=[100],
         activation="relu",
         algorithm=algo,
-        max_iters=max_iters,
+        max_iters=200,
         learning_rate=0.001,
         random_state=42,
         curve=True,
