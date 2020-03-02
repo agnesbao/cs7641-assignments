@@ -45,6 +45,7 @@ for algo in algo_list:
         hidden_nodes=[100],
         activation="relu",
         algorithm=algo,
+        clip_max=1,
         max_iters=200,
         learning_rate=0.001,
         random_state=42,
@@ -125,12 +126,14 @@ plt.close()
 df = pd.DataFrame(curve_list).transpose()
 df.columns = algo_list
 df.plot(
+    logy=True,
     subplots=True,
-    figsize=(7, 7),
+    layout=(2,2),
+    figsize=(10, 4),
     title="Neural Network: Loss (fitness) curve vs algorithms",
 )
 plt.xlabel("Iteration")
-plt.ylabel("Loss")
+plt.ylabel("Log-loss")
 plt.savefig("output/nn_algo.png")
 plt.close()
 
