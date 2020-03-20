@@ -128,7 +128,7 @@ df.columns = algo_list
 df.plot(
     logy=True,
     subplots=True,
-    layout=(2,2),
+    layout=(2, 2),
     figsize=(10, 4),
     title="Neural Network: Loss (fitness) curve vs algorithms",
 )
