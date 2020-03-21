@@ -1,12 +1,18 @@
 import pandas as pd
+import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.metrics import adjusted_mutual_info_score
 from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
-from load_data import DATA
 import matplotlib.pyplot as plt
 
-NUM_CLUSTERS = range(2, 16)
+from load_data import DATA
+from examine_cluster import WINE_TOP_FEATURES
+from examine_cluster import examine_wine_cluster
+from examine_cluster import plot_fashion_cluster
+
+
+NUM_CLUSTERS = range(2, 20)
 
 
 def run_kmeans(X, y):
@@ -25,8 +31,8 @@ def run_kmeans(X, y):
     res_df = pd.DataFrame(
         data={
             "Adjusted Mutual Info": ami,
-            "KMeans Inertia": iner,
             "Silhouette Coefficient": sc,
+            "KMeans Inertia": iner,
         },
         index=NUM_CLUSTERS,
     )
@@ -49,3 +55,24 @@ for data_key in DATA:
     plt.xlabel("n_clusters")
     plt.savefig(f"output/kmeans_{data_key}.png")
     plt.close()
+
+    if data_key == "wine":
+        examine_wine_cluster(
+            X[:, WINE_TOP_FEATURES[:2]],
+            y,
+            title="True Label",
+            xylabel=DATA["wine"][0].columns[WINE_TOP_FEATURES[:2]],
+            fname="output/true_cluster_wine.png",
+        )
+        examine_wine_cluster(
+            X[:, WINE_TOP_FEATURES[:2]],
+            k_labels_df[y.nunique()],
+            title="KMeans",
+            xylabel=DATA["wine"][0].columns[WINE_TOP_FEATURES[:2]],
+            fname="output/kmeans_cluster_wine.png",
+        )
+
+    if data_key == "fashion":
+        plot_fashion_cluster(
+            X, k_labels_df[len(np.unique(y))], fname="output/kmeans_cluster_fashion.png"
+        )
