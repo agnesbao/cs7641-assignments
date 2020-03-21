@@ -3,15 +3,14 @@ import pandas as pd
 from sklearn.mixture import GaussianMixture
 from sklearn.metrics import adjusted_mutual_info_score
 from sklearn.metrics import silhouette_score
-from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 
 from load_data import DATA
-from examine_cluster import WINE_TOP_FEATURES
-from examine_cluster import examine_wine_cluster
+from examine_cluster import TOP_FEATURES
+from examine_cluster import examine_credit_cluster
 from examine_cluster import plot_fashion_cluster
 
-
+RUN_DATA = ["credit"]
 NUM_CLUSTERS = range(2, 20)
 
 
@@ -41,10 +40,10 @@ def run_em(X, y):
 
 
 for data_key in DATA:
+    if data_key not in RUN_DATA:
+        continue
     print(f"Running EM on {data_key} data")
     X, y = DATA[data_key]
-    if data_key == "wine":
-        X = StandardScaler().fit_transform(X)
     res_df, k_labels_df = run_em(X, y)
     k_labels_df.to_csv(f"data/EM_labels_{data_key}.csv", index=False)
     res_df.plot(
@@ -56,13 +55,13 @@ for data_key in DATA:
     plt.savefig(f"output/EM_{data_key}.png")
     plt.close()
 
-    if data_key == "wine":
-        examine_wine_cluster(
-            X[:, WINE_TOP_FEATURES[:2]],
+    if data_key == "credit":
+        examine_credit_cluster(
+            X.values[:, TOP_FEATURES[:2]],
             k_labels_df[y.nunique()],
             title="EM",
-            xylabel=DATA["wine"][0].columns[WINE_TOP_FEATURES[:2]],
-            fname="output/EM_cluster_wine.png",
+            xylabel=DATA["credit"][0].columns[TOP_FEATURES[:2]],
+            fname="output/EM_cluster_credit.png",
         )
 
     if data_key == "fashion":

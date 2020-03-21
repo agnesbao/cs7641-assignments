@@ -4,29 +4,28 @@ import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 from load_data import DATA
 import matplotlib.pyplot as plt
-from matplotlib.colors import Normalize
 
 sys.path.insert(1, "fashion-mnist")
 
 from utils.helper import get_sprite_image
 
-# use decision tree to find top features in wine data
+# use decision tree to find top features in credit data
 clf = DecisionTreeClassifier(random_state=0)
-clf.fit(DATA["wine"][0], DATA["wine"][1])
-fi = pd.DataFrame(data=clf.feature_importances_, index=DATA["wine"][0].columns)
+clf.fit(DATA["credit"][0], DATA["credit"][1])
+fi = pd.DataFrame(data=clf.feature_importances_, index=DATA["credit"][0].columns)
 fi.plot(
     kind="bar",
     legend=False,
-    title="Feature importance from decision tree on wine data",
+    title="Feature importance from decision tree on credit data",
 )
 plt.tight_layout()
-plt.savefig("output/feature_importance_wine.png")
+plt.savefig("output/feature_importance_credit.png")
 plt.close()
-WINE_TOP_FEATURES = (-clf.feature_importances_).argsort()
+TOP_FEATURES = (-clf.feature_importances_).argsort()
 
 
-def examine_wine_cluster(X, labels, title, xylabel, fname):
-    plt.scatter(x=X[:, 0], y=X[:, 1], c=labels, s=3, alpha=0.5)
+def examine_credit_cluster(X, labels, title, xylabel, fname):
+    plt.scatter(x=X[:, 0], y=X[:, 1], c=labels, alpha=0.5, cmap="coolwarm")
     plt.title(title)
     plt.xlabel(xylabel[0])
     plt.ylabel(xylabel[1])

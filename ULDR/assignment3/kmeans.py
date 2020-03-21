@@ -3,15 +3,14 @@ import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.metrics import adjusted_mutual_info_score
 from sklearn.metrics import silhouette_score
-from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 
 from load_data import DATA
-from examine_cluster import WINE_TOP_FEATURES
-from examine_cluster import examine_wine_cluster
+from examine_cluster import TOP_FEATURES
+from examine_cluster import examine_credit_cluster
 from examine_cluster import plot_fashion_cluster
 
-
+RUN_DATA = ["credit"]
 NUM_CLUSTERS = range(2, 20)
 
 
@@ -41,10 +40,10 @@ def run_kmeans(X, y):
 
 
 for data_key in DATA:
+    if data_key not in RUN_DATA:
+        continue
     print(f"Running KMeans on {data_key} data")
     X, y = DATA[data_key]
-    if data_key == "wine":
-        X = StandardScaler().fit_transform(X)
     res_df, k_labels_df = run_kmeans(X, y)
     k_labels_df.to_csv(f"data/kmeans_labels_{data_key}.csv", index=False)
     res_df.plot(
@@ -56,20 +55,20 @@ for data_key in DATA:
     plt.savefig(f"output/kmeans_{data_key}.png")
     plt.close()
 
-    if data_key == "wine":
-        examine_wine_cluster(
-            X[:, WINE_TOP_FEATURES[:2]],
+    if data_key == "credit":
+        examine_credit_cluster(
+            X.values[:, TOP_FEATURES[:2]],
             y,
             title="True Label",
-            xylabel=DATA["wine"][0].columns[WINE_TOP_FEATURES[:2]],
-            fname="output/true_cluster_wine.png",
+            xylabel=DATA["credit"][0].columns[TOP_FEATURES[:2]],
+            fname="output/true_cluster_credit.png",
         )
-        examine_wine_cluster(
-            X[:, WINE_TOP_FEATURES[:2]],
+        examine_credit_cluster(
+            X.values[:, TOP_FEATURES[:2]],
             k_labels_df[y.nunique()],
             title="KMeans",
-            xylabel=DATA["wine"][0].columns[WINE_TOP_FEATURES[:2]],
-            fname="output/kmeans_cluster_wine.png",
+            xylabel=DATA["credit"][0].columns[TOP_FEATURES[:2]],
+            fname="output/kmeans_cluster_credit.png",
         )
 
     if data_key == "fashion":
