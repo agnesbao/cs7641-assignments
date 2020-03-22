@@ -1,5 +1,6 @@
 import pickle
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import cross_validate
 from load_data import DATA
@@ -88,7 +89,11 @@ for cluster in ["kmeans", "EM"]:
 
 df_mean = pd.DataFrame(res_mean, index=ind)
 df_std = pd.DataFrame(res_std, index=ind)
-df_mean[["fit_time", "score_time"]].plot(
-    yerr=df_std[["fit_time", "score_time"]], rot=90
-)
-plt.tight_layout()
+
+for i in range(int(len(df_mean.columns) / 2)):
+    cols = df_mean.columns[i * 2 : i * 2 + 2]
+    fname = f"data/nn_{'_'.join(cols[0].split('_')[1:])}.png"
+    df_mean[cols].plot(yerr=df_std[cols], rot=90, xticks=range(len(ind)))
+    plt.tight_layout()
+    plt.savefig(fname)
+    plt.close()

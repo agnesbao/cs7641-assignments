@@ -10,7 +10,7 @@ from utils.helper import get_sprite_image
 def examine_credit_cluster(X, labels, title, fname, xylabel=None):
     plt.scatter(x=X[:, 0], y=X[:, 1], c=labels, s=1, alpha=0.5, cmap="coolwarm")
     plt.title(title)
-    if xylabel:
+    if xylabel is not None:
         plt.xlabel(xylabel[0])
         plt.ylabel(xylabel[1])
     plt.savefig(fname)
