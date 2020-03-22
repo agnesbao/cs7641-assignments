@@ -6,7 +6,7 @@ from load_data import DATA
 from examine_cluster import examine_credit_cluster
 from examine_cluster import plot_fashion_cluster
 
-RUN_DATA = ["fashion"]
+RUN_DATA = ["credit"]
 
 for data_key in DATA:
     if data_key not in RUN_DATA:

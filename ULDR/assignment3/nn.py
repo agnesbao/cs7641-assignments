@@ -92,7 +92,7 @@ df_std = pd.DataFrame(res_std, index=ind)
 
 for i in range(int(len(df_mean.columns) / 2)):
     cols = df_mean.columns[i * 2 : i * 2 + 2]
-    fname = f"data/nn_{'_'.join(cols[0].split('_')[1:])}.png"
+    fname = f"output/nn_{'_'.join(cols[0].split('_')[1:])}.png"
     df_mean[cols].plot(yerr=df_std[cols], rot=90, xticks=range(len(ind)))
     plt.tight_layout()
     plt.savefig(fname)

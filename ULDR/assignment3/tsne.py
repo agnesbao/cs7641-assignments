@@ -3,7 +3,7 @@ from sklearn.manifold import TSNE
 from load_data import DATA
 from examine_cluster import examine_credit_cluster
 
-RUN_DATA = ["credit"]
+RUN_DATA = ["fashion"]
 
 for data_key in DATA:
     if data_key not in RUN_DATA:
