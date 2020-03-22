@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 from sklearn.decomposition import FastICA
 from scipy.stats import kurtosis
 import matplotlib.pyplot as plt
@@ -30,39 +29,48 @@ for data_key in DATA:
 
     top_kurt_ind = (-kurt).argsort()
 
+    # IC
+    examine_credit_cluster(
+        X_ica[:, top_kurt_ind[:2]],
+        y,
+        title=f"ICA transformation on {data_key} data",
+        xylabel=["IC1", "IC2"],
+        fname=f"output/ica_ic_cluster_{data_key}.png",
+    )
+
     if data_key == "fashion":
+        # IC
         plot_fashion_cluster(
             ica.components_[top_kurt_ind[:25], :],
             range(25),
             fname="output/ica_ic_fashion.png",
         )
+
         # reconstructed image
         X_recon = ica.inverse_transform(X_ica)
         plot_fashion_cluster(X_recon, y, fname="output/ica_reconstructed_fashion.png")
-    elif data_key == "credit":
-        examine_credit_cluster(
-            X_ica[:, top_kurt_ind[:2]],
-            y,
-            title="IC1 and IC2 on credit data",
-            xylabel=["IC1", "IC2"],
-            fname="output/ica_ic_credit.png",
-        )
-        # reconstruct data
-        corr_mean = []
-        corr_std = []
-        for nc in range(1, X.shape[1]):
+
+        # recon vs k
+        sample = []
+        for nc in range(2, 201, 8):
             print(f"Reconstructing with {nc} PC...")
             ica = FastICA(n_components=nc, whiten=True, random_state=0)
             X_recon = ica.inverse_transform(ica.fit_transform(X))
-            corr = X.corrwith(pd.DataFrame(X_recon, columns=X.columns), axis=1)
-            corr_mean.append(corr.mean())
-            corr_std.append(corr.std())
-        corr_mean = np.array(corr_mean)
-        corr_std = np.array(corr_std)
-        plt.plot(range(1, X.shape[1]), corr_mean)
-        plt.fill_between(
-            range(1, X.shape[1]), corr_mean - corr_std, corr_mean + corr_std, alpha=0.3
+            sample.append(X_recon[0])
+        plot_fashion_cluster(
+            np.array(sample), range(25), fname="output/ica_recon_vs_k_fashion.png"
         )
+
+    elif data_key == "credit":
+        # reconstruct data
+        corr_mean = []
+        for nc in range(1, X.shape[1]):
+            print(f"Reconstructing with {nc} IC...")
+            ica = FastICA(n_components=nc, whiten=True, random_state=0)
+            X_recon = ica.inverse_transform(ica.fit_transform(X))
+            corr = np.corrcoef(X.values.flatten(), X_recon.flatten())[0, 1]
+            corr_mean.append(corr)
+        plt.plot(range(1, X.shape[1]), corr_mean)
         plt.xlabel("n_components")
         plt.ylabel("corr between raw and recomposed data")
         plt.title(f"Data reconstruction quality vs ICA n_components on {data_key} data")

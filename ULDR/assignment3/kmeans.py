@@ -6,11 +6,11 @@ from sklearn.metrics import silhouette_score
 import matplotlib.pyplot as plt
 
 from load_data import DATA
-from examine_cluster import TOP_FEATURES
+from load_data import TOP_FEATURES
 from examine_cluster import examine_credit_cluster
 from examine_cluster import plot_fashion_cluster
 
-RUN_DATA = ["credit"]
+RUN_DATA = ["credit", "fashion", "credit_weighted"]
 NUM_CLUSTERS = range(2, 20)
 
 
@@ -55,20 +55,20 @@ for data_key in DATA:
     plt.savefig(f"output/kmeans_{data_key}.png")
     plt.close()
 
-    if data_key == "credit":
+    if "credit" in data_key:
         examine_credit_cluster(
             X.values[:, TOP_FEATURES[:2]],
             y,
             title="True Label",
             xylabel=DATA["credit"][0].columns[TOP_FEATURES[:2]],
-            fname="output/true_cluster_credit.png",
+            fname=f"output/true_cluster_{data_key}.png",
         )
         examine_credit_cluster(
             X.values[:, TOP_FEATURES[:2]],
             k_labels_df[y.nunique()],
             title="KMeans",
             xylabel=DATA["credit"][0].columns[TOP_FEATURES[:2]],
-            fname="output/kmeans_cluster_credit.png",
+            fname=f"output/kmeans_cluster_{data_key}.png",
         )
 
     if data_key == "fashion":
