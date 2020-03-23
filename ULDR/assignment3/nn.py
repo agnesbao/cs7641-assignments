@@ -11,6 +11,7 @@ nn = MLPClassifier(
     max_iter=1000,
     early_stopping=True,
     learning_rate_init=0.01,
+    random_state=0,
 )
 
 # raw data
@@ -21,8 +22,7 @@ cv_results = cross_validate(
     X,
     y,
     scoring=["accuracy", "balanced_accuracy", "precision", "recall", "f1", "roc_auc"],
-    cv=5,
-    n_jobs=-1,
+    cv=10,
     return_train_score=True,
 )
 res_mean = {key: [] for key in cv_results}
@@ -53,8 +53,7 @@ for algo_key in data_red:
             "f1",
             "roc_auc",
         ],
-        cv=5,
-        n_jobs=-1,
+        cv=10,
         return_train_score=True,
     )
     for key in cv_results:
@@ -79,8 +78,7 @@ for cluster in ["kmeans", "EM"]:
                 "f1",
                 "roc_auc",
             ],
-            cv=5,
-            n_jobs=-1,
+            cv=10,
             return_train_score=True,
         )
         for key in cv_results:
