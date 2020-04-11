@@ -4,7 +4,7 @@ from hiive.mdptoolbox.mdp import ValueIteration
 import matplotlib.pyplot as plt
 
 from make_mdp import PROBS
-from q_learn import test_policy
+from q_fc import test_policy
 
 to_solve = ["frozen_lake", "forest"]
 
@@ -20,7 +20,6 @@ for prob_key in PROBS:
 
     res_dict = {
         "Iteration to converge": [],
-        "Time to converge": [],
         "Reward": [],
         "Max V": [],
         "Mean V": [],
@@ -31,13 +30,13 @@ for prob_key in PROBS:
     r_std_all = []
     for g in DISCOUNT_RATES:
         print(f"..discount rate = {g}...")
-        vi = ValueIteration(P, R, gamma=g, epsilon=0.001, max_iter=1000)
+        vi = ValueIteration(P, R, gamma=g, epsilon=0.001)
         vi.run()
         res_dict["Iteration to converge"].append(vi.iter)
-        res_dict["Time to converge"].append(vi.time)
         res_dict["Reward"].append(vi.run_stats[-1]["Reward"])
         res_dict["Max V"].append(vi.run_stats[-1]["Max V"])
         res_dict["Mean V"].append(vi.run_stats[-1]["Mean V"])
+        print("...testing...")
         test_r_mean, test_r_std = test_policy(P, R, vi.policy)
         res_dict["Optimal policy reward"].append(test_r_mean)
         r_std_all.append(test_r_std)

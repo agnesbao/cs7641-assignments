@@ -6,9 +6,7 @@ from hiive.mdptoolbox.mdp import PolicyIteration
 import matplotlib.pyplot as plt
 
 from make_mdp import PROBS
-from q_learn import decay_schedule
-from q_learn import QLearning
-from q_learn import test_policy
+from q_fc import *
 
 
 def print_frozen_lake_policy(policy):
@@ -18,7 +16,7 @@ def print_frozen_lake_policy(policy):
     return np.array(map_action).reshape((nE, nE))
 
 
-to_solve = ["frozen_lake"]
+to_solve = ["frozen_lake", "frozen_lake_modrew", "forest"]
 
 for prob_key in PROBS:
     if prob_key not in to_solve:
@@ -26,8 +24,19 @@ for prob_key in PROBS:
     print(f"Running {prob_key}...")
     P, R = PROBS[prob_key]
 
+    if prob_key == "frozen_lake":
+        gamma = 0.99
+        n_epi = 10000
+        eps_schedule = make_schedules(n_epi)["exp_decay"]
+        alpha_schedule = make_schedules(n_epi)["constant_0.01"]
+    elif prob_key == "forest":
+        gamma = 0.999
+        n_epi = 100000
+        eps_schedule = make_schedules(n_epi)["constant_0.5"]
+        alpha_schedule = make_schedules(n_epi)["constant_0.5"]
+
     print("..Running value iteration...")
-    vi = ValueIteration(P, R, gamma=0.99, epsilon=0.001, max_iter=1000)
+    vi = ValueIteration(P, R, gamma=gamma, epsilon=0.001, max_iter=1000)
     vi.run()
     vi_df = pd.DataFrame(vi.run_stats).set_index("Iteration")
     vi_df.columns = pd.MultiIndex.from_product([vi_df.columns, ["value_iter"]])
@@ -35,7 +44,7 @@ for prob_key in PROBS:
     print(f"VI performance: {test_policy(P,R,vi.policy)}")
 
     print("..Running policy iteration...")
-    pi = PolicyIteration(P, R, gamma=0.99, eval_type=1, max_iter=1000)
+    pi = PolicyIteration(P, R, gamma=gamma, eval_type=1, max_iter=1000)
     pi.run()
     pi_df = pd.DataFrame(pi.run_stats).set_index("Iteration")
     pi_df.columns = pd.MultiIndex.from_product([pi_df.columns, ["policy_iter"]])
@@ -43,23 +52,20 @@ for prob_key in PROBS:
     print(f"PI performance: {test_policy(P,R,pi.policy)}")
 
     print("..Running q-learning...")
-    n_episode = 10000
-    alpha_schedule = decay_schedule(0.1, 0.001, 0.999, n_episode)
-    epsilon_schedule = decay_schedule(1, 0.01, 0.999, n_episode)
     ql = QLearning(
         P,
         R,
-        gamma=0.99,
+        gamma=gamma,
         alpha_schedule=alpha_schedule,
-        epsilon_schedule=epsilon_schedule,
-        n_episode=n_episode,
+        epsilon_schedule=eps_schedule,
+        n_episode=n_epi,
     )
     random.seed(0)
     ql.run()
     ql_df = pd.DataFrame(ql.run_stats)
     ql_df["Alpha"] = alpha_schedule
-    ql_df["Epsilon"] = epsilon_schedule
-    ql_df.to_csv(f"{prob_key}_qlearn.csv")
+    ql_df["Epsilon"] = eps_schedule
+    ql_df.to_csv(f"data/{prob_key}_qlearn.csv")
     ql_df[["Reward_rolling_mean", "Error_rolling_mean"]] = (
         ql_df[["Reward", "Error"]].rolling(1000).mean()
     )
@@ -81,7 +87,7 @@ for prob_key in PROBS:
     print(f"Q-learning performance: {test_policy(P,R,ql.policy)}")
 
     res_df = vi_df.join(pi_df, how="outer")
-    res_df.to_csv(f"{prob_key}_vpiter.csv")
+    res_df.to_csv(f"data/{prob_key}_vpiter.csv")
     for var in ["Reward", "Error", "Time", "Max V", "Mean V"]:
         res_df.xs(var, level=0, axis=1).plot(
             title=f"{var} on {prob_key}", figsize=(8, 4)

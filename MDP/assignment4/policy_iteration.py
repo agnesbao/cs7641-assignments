@@ -4,7 +4,7 @@ from hiive.mdptoolbox.mdp import PolicyIteration
 import matplotlib.pyplot as plt
 
 from make_mdp import PROBS
-from q_learn import test_policy
+from q_fc import test_policy
 
 to_solve = ["frozen_lake", "forest"]
 
@@ -20,7 +20,6 @@ for prob_key in PROBS:
 
     res_dict = {
         "Iteration to converge": [],
-        "Time to converge": [],
         "Reward": [],
         "Max V": [],
         "Mean V": [],
@@ -34,10 +33,10 @@ for prob_key in PROBS:
         pi = PolicyIteration(P, R, gamma=g, eval_type=1, max_iter=1000)
         pi.run()
         res_dict["Iteration to converge"].append(pi.iter)
-        res_dict["Time to converge"].append(pi.time)
         res_dict["Reward"].append(pi.run_stats[-1]["Reward"])
         res_dict["Max V"].append(pi.run_stats[-1]["Max V"])
         res_dict["Mean V"].append(pi.run_stats[-1]["Mean V"])
+        print("...testing...")
         test_r_mean, test_r_std = test_policy(P, R, pi.policy)
         res_dict["Optimal policy reward"].append(test_r_mean)
         r_std_all.append(test_r_std)
