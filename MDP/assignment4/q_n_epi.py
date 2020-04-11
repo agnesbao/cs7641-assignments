@@ -49,7 +49,7 @@ for prob_key in PROBS:
         # constant learning rate
         alpha_schedule = [0.01] * n_epi
         # all exploration
-        epsilon_schedule = [1] * n_epi
+        epsilon_schedule = [0.5] * n_epi
         ql = QLearning(
             P,
             R,
