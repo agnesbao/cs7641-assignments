@@ -1,6 +1,7 @@
 import numpy as np
 import gym
 from hiive.mdptoolbox.example import forest
+import matplotlib.pyplot as plt
 
 
 PROBS = {}
@@ -39,3 +40,26 @@ for s in range(nS):
             DONE[next_s] = done
         P[a, s, :] /= np.sum(P[a, s, :])
 PROBS["frozen_lake_modrew"] = (P, R)
+
+_, ax = plt.subplots(figsize=(5, 5))
+for i in range(8):
+    for j in range(8):
+        if env.desc[i, j] == b"S":
+            c = "y"
+        elif env.desc[i, j] == b"H":
+            c = "r"
+        elif env.desc[i, j] == b"G":
+            c = "g"
+        elif env.desc[i, j] == b"F":
+            c = "b"
+        x = (i + 0.5) / 8
+        y = (7 - j + 0.5) / 8
+        p = plt.Rectangle((i / 8, (7 - j) / 8), 1 / 8, 1 / 8, color=c)
+        ax.add_patch(p)
+        plt.text(
+            x, y, env.desc[i, j].decode(), size=10, c="w", ha="center", va="center"
+        )
+plt.xticks([])
+plt.yticks([])
+plt.title("frozen_lake env map")
+plt.savefig("output/frozen_lake_map.png")
