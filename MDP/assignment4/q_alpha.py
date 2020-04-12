@@ -31,7 +31,7 @@ for prob_key in PROBS:
         alpha_schedules = make_schedules(n_epi)
 
     elif prob_key == "forest":
-        gamma = 0.999
+        gamma = 0.99
         n_epi = 100000
         eps_schedule = make_schedules(n_epi)["constant_0.5"]
         alpha_schedules = make_schedules(n_epi)

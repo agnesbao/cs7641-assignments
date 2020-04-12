@@ -8,7 +8,7 @@ from q_fc import test_policy
 
 to_solve = ["frozen_lake", "forest"]
 
-DISCOUNT_RATES = [0.3, 0.5, 0.8, 0.9, 0.99, 0.999, 0.9999]
+DISCOUNT_RATES = [0.3, 0.5, 0.8, 0.9, 0.99, 0.999]
 
 for prob_key in PROBS:
     if prob_key not in to_solve:
@@ -20,7 +20,6 @@ for prob_key in PROBS:
 
     res_dict = {
         "Iteration to converge": [],
-        "Reward": [],
         "Max V": [],
         "Mean V": [],
         "Optimal policy reward": [],
@@ -33,7 +32,6 @@ for prob_key in PROBS:
         vi = ValueIteration(P, R, gamma=g, epsilon=0.001)
         vi.run()
         res_dict["Iteration to converge"].append(vi.iter)
-        res_dict["Reward"].append(vi.run_stats[-1]["Reward"])
         res_dict["Max V"].append(vi.run_stats[-1]["Max V"])
         res_dict["Mean V"].append(vi.run_stats[-1]["Mean V"])
         print("...testing...")

@@ -93,7 +93,7 @@ def test_policy(P, R, policy):
     nS = P.shape[1]
     step_fc = QLearning(P, R)._step
     r_all = []
-    for t in range(10000):
+    for t in range(1000):
         if len(R.shape) == 3:
             # start frozen lake from 0
             s = 0

@@ -16,7 +16,7 @@ def print_frozen_lake_policy(policy):
     return np.array(map_action).reshape((nE, nE))
 
 
-to_solve = ["frozen_lake", "frozen_lake_modrew", "forest"]
+to_solve = ["frozen_lake", "forest"]
 
 for prob_key in PROBS:
     if prob_key not in to_solve:
@@ -25,37 +25,33 @@ for prob_key in PROBS:
     P, R = PROBS[prob_key]
 
     if prob_key == "frozen_lake":
-        gamma = 0.99
         n_epi = 10000
         eps_schedule = make_schedules(n_epi)["exp_decay"]
         alpha_schedule = make_schedules(n_epi)["constant_0.01"]
     elif prob_key == "forest":
-        gamma = 0.999
         n_epi = 100000
         eps_schedule = make_schedules(n_epi)["constant_0.5"]
         alpha_schedule = make_schedules(n_epi)["constant_0.5"]
 
     print("..Running value iteration...")
-    vi = ValueIteration(P, R, gamma=gamma, epsilon=0.001, max_iter=1000)
+    vi = ValueIteration(P, R, gamma=0.99, epsilon=0.001, max_iter=1000)
     vi.run()
     vi_df = pd.DataFrame(vi.run_stats).set_index("Iteration")
     vi_df.columns = pd.MultiIndex.from_product([vi_df.columns, ["value_iter"]])
     print(f"Runtime per value iter: {vi.time/vi.iter} sec")
-    print(f"VI performance: {test_policy(P,R,vi.policy)}")
 
     print("..Running policy iteration...")
-    pi = PolicyIteration(P, R, gamma=gamma, eval_type=1, max_iter=1000)
+    pi = PolicyIteration(P, R, gamma=0.99, eval_type=1, max_iter=1000)
     pi.run()
     pi_df = pd.DataFrame(pi.run_stats).set_index("Iteration")
     pi_df.columns = pd.MultiIndex.from_product([pi_df.columns, ["policy_iter"]])
     print(f"Runtime per policy iter: {pi.time/pi.iter} sec")
-    print(f"PI performance: {test_policy(P,R,pi.policy)}")
 
     print("..Running q-learning...")
     ql = QLearning(
         P,
         R,
-        gamma=gamma,
+        gamma=0.99,
         alpha_schedule=alpha_schedule,
         epsilon_schedule=eps_schedule,
         n_episode=n_epi,
@@ -84,11 +80,10 @@ for prob_key in PROBS:
     plt.savefig(f"output/{prob_key}_q.png")
     plt.close()
     print(f"Runtime per q-learning episode: {ql.time/ql.n_episode} sec")
-    print(f"Q-learning performance: {test_policy(P,R,ql.policy)}")
 
     res_df = vi_df.join(pi_df, how="outer")
     res_df.to_csv(f"data/{prob_key}_vpiter.csv")
-    for var in ["Reward", "Error", "Time", "Max V", "Mean V"]:
+    for var in ["Error", "Time", "Max V", "Mean V"]:
         res_df.xs(var, level=0, axis=1).plot(
             title=f"{var} on {prob_key}", figsize=(8, 4)
         )
@@ -108,3 +103,11 @@ for prob_key in PROBS:
     print(f"Value diff vi vs. pi: {sum([abs(v1-v2) for v1,v2 in zip(vi.V, pi.V)])}")
     print(f"Value diff vi vs. ql: {sum([abs(v1-v2) for v1,v2 in zip(vi.V, ql.V)])}")
     print(f"Value diff pi vs. ql: {sum([abs(v1-v2) for v1,v2 in zip(pi.V, ql.V)])}")
+
+    V_df = pd.DataFrame(data=[vi.V, pi.V, ql.V], index=["vi", "pi", "ql"]).T
+    V_df.to_csv(f"data/{prob_key}_V_cmp.csv")
+
+    policy_df = pd.DataFrame(
+        data=[vi.policy, pi.policy, ql.policy], index=["vi", "pi", "ql"]
+    ).T
+    policy_df.to_csv(f"data/{prob_key}_policy_cmp.csv")
