@@ -49,3 +49,22 @@ for prob_key in ["frozen_lake", "forest"]:
     plt.suptitle("Policy from value iteration and policy iteration")
     plt.savefig(f"output/{prob_key}_policy_vi_pi.png")
     plt.close()
+
+
+n_states_vi = pd.read_csv("data/vi_nS.csv", index_col=0)
+n_states_vi["Time per iteration"] = (
+    n_states_vi["Time to converge"] / n_states_vi["Iteration to converge"]
+)
+n_states_vi.plot(subplots=True, style=".-", title="Value iteration vs. n_states")
+plt.xlabel("n_states")
+plt.savefig("output/vi_nS.png")
+plt.close()
+
+n_states_pi = pd.read_csv("data/pi_nS.csv", index_col=0)
+n_states_pi["Time per iteration"] = (
+    n_states_pi["Time to converge"] / n_states_pi["Iteration to converge"]
+)
+n_states_pi.plot(subplots=True, style=".-", title="Policy iteration vs. n_states")
+plt.xlabel("n_states")
+plt.savefig("output/pi_nS.png")
+plt.close()
