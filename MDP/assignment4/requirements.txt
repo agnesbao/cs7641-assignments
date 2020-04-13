@@ -1,0 +1,7 @@
+mdptoolbox_hiive==4.0.3.1
+pandas==0.25.1
+gym==0.17.1
+matplotlib==3.1.1
+numpy==1.16.5
+attrs==19.2.0
+attr==0.3.1

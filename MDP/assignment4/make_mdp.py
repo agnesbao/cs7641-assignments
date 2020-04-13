@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import gym
 from hiive.mdptoolbox.example import forest
 import matplotlib.pyplot as plt
@@ -41,25 +42,49 @@ for s in range(nS):
         P[a, s, :] /= np.sum(P[a, s, :])
 PROBS["frozen_lake_modrew"] = (P, R)
 
-_, ax = plt.subplots(figsize=(5, 5))
-for i in range(8):
-    for j in range(8):
-        if env.desc[i, j] == b"S":
-            c = "y"
-        elif env.desc[i, j] == b"H":
-            c = "r"
-        elif env.desc[i, j] == b"G":
-            c = "g"
-        elif env.desc[i, j] == b"F":
-            c = "b"
-        x = (i + 0.5) / 8
-        y = (7 - j + 0.5) / 8
-        p = plt.Rectangle((i / 8, (7 - j) / 8), 1 / 8, 1 / 8, color=c)
-        ax.add_patch(p)
-        plt.text(
-            x, y, env.desc[i, j].decode(), size=10, c="w", ha="center", va="center"
-        )
-plt.xticks([])
-plt.yticks([])
+def plot_lake(tlist):
+    _, ax = plt.subplots(figsize=(5, 5))
+    for i in range(8):
+        for j in range(8):
+            if env.desc[i, j] == b"S":
+                c = "y"
+            elif env.desc[i, j] == b"H":
+                c = "r"
+            elif env.desc[i, j] == b"G":
+                c = "g"
+            elif env.desc[i, j] == b"F":
+                c = "b"
+            y = (7 - i + 0.5) / 8
+            x = (j + 0.5) / 8
+            p = plt.Rectangle(((j) / 8, (7 - i) / 8), 1 / 8, 1 / 8, color=c)
+            ax.add_patch(p)
+            t = tlist[i,j]
+            try:
+                t = t.decode()
+            except AttributeError:
+                pass
+            plt.text(
+                x, y, t, size=10, c="w", ha="center", va="center"
+            )
+    plt.xticks([])
+    plt.yticks([])
+
+
+plot_lake(env.desc)
 plt.title("frozen_lake env map")
 plt.savefig("output/frozen_lake_map.png")
+plt.close()
+
+policy = pd.read_csv("data/frozen_lake_pi_policy.csv")["0.99"]
+actions = np.array(["<v>^"[i] for i in policy])
+plot_lake(actions.reshape(8,8))
+plt.title("frozen_lake policy map")
+plt.savefig("output/frozen_lake_policy_map.png")
+plt.close()
+
+policy = pd.read_csv("data/frozen_lake_policy_cmp.csv")["ql"]
+actions = np.array(["<v>^"[i] for i in policy])
+plot_lake(actions.reshape(8,8))
+plt.title("frozen_lake policy map from Q-Learning")
+plt.savefig("output/frozen_lake_q_policy_map.png")
+plt.close()
