@@ -15,7 +15,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
-to_solve = ["frozen_lake", "forest"]
+to_solve = ["frozen_lake"]
 
 
 for prob_key in PROBS:
@@ -27,7 +27,7 @@ for prob_key in PROBS:
     if prob_key == "frozen_lake":
         gamma = 0.99
         n_epi = 10000
-        epsilon_schedule = make_schedules(n_epi)
+        epsilon_schedules = make_schedules(n_epi)
 
     elif prob_key == "forest":
         gamma = 0.99
